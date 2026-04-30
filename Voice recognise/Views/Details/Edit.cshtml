@@ -1,0 +1,174 @@
+@model Voice_recognise.Models.Details
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Details</h4>
+<hr />
+
+<div class="alert alert-info d-flex align-items-center gap-2 mb-3" style="max-width:500px;">
+    <span>&#127908;</span>
+    <span>
+        Say <strong>"first name John"</strong>, <strong>"middle name Ali"</strong>,
+        <strong>"last name Khan"</strong>, <strong>"count 3"</strong>, or
+        <strong>"description something"</strong> to fill fields by voice.
+    </span>
+</div>
+
+<div class="mb-3 d-flex align-items-center gap-3" style="max-width:500px;">
+    <button type="button" id="voiceBtn" class="btn btn-outline-danger btn-lg" title="Start voice input">
+        &#127908; Start Voice
+    </button>
+    <span id="voiceStatus" class="text-muted fst-italic"></span>
+</div>
+
+<div id="voiceTranscript" class="mb-3 p-2 bg-light border rounded text-secondary fst-italic" style="max-width:500px;min-height:36px;display:none;"></div>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" id="FirstName" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MiddleName" class="control-label"></label>
+                <input asp-for="MiddleName" class="form-control" id="MiddleName" />
+                <span asp-validation-for="MiddleName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" id="LastName" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Count" class="control-label"></label>
+                <input asp-for="Count" class="form-control" id="Count" />
+                <span asp-validation-for="Count" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" id="Description" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const btn = document.getElementById('voiceBtn');
+            const statusEl = document.getElementById('voiceStatus');
+            const transcriptEl = document.getElementById('voiceTranscript');
+
+            if (!SpeechRecognition) {
+                btn.disabled = true;
+                btn.textContent = 'Voice not supported';
+                statusEl.textContent = 'Your browser does not support voice recognition. Try Chrome.';
+                return;
+            }
+
+            const fieldMap = [
+                { patterns: ['first name', 'firstname'], field: 'FirstName' },
+                { patterns: ['middle name', 'middlename', 'second name'], field: 'MiddleName' },
+                { patterns: ['last name', 'lastname', 'surname'], field: 'LastName' },
+                { patterns: ['count', 'number'], field: 'Count' },
+                { patterns: ['description', 'describe'], field: 'Description' },
+            ];
+
+            function fillField(text) {
+                const lower = text.toLowerCase().trim();
+                for (const entry of fieldMap) {
+                    for (const pattern of entry.patterns) {
+                        if (lower.startsWith(pattern + ' ')) {
+                            const value = text.substring(pattern.length + 1).trim();
+                            const el = document.getElementById(entry.field);
+                            if (el && value) {
+                                el.value = value;
+                                el.classList.add('border-success');
+                                setTimeout(() => el.classList.remove('border-success'), 1500);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            let listening = false;
+
+            btn.addEventListener('click', () => {
+                if (listening) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+
+            recognition.onstart = () => {
+                listening = true;
+                btn.textContent = '⏹ Stop Voice';
+                btn.classList.replace('btn-outline-danger', 'btn-danger');
+                statusEl.textContent = 'Listening...';
+                transcriptEl.style.display = 'block';
+                transcriptEl.textContent = '';
+            };
+
+            recognition.onend = () => {
+                listening = false;
+                btn.textContent = '🎤 Start Voice';
+                btn.classList.replace('btn-danger', 'btn-outline-danger');
+                statusEl.textContent = 'Stopped.';
+            };
+
+            recognition.onerror = (e) => {
+                statusEl.textContent = 'Error: ' + e.error;
+                listening = false;
+                btn.textContent = '🎤 Start Voice';
+                btn.classList.replace('btn-danger', 'btn-outline-danger');
+            };
+
+            recognition.onresult = (event) => {
+                let interim = '';
+                let final = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const t = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        final += t;
+                    } else {
+                        interim += t;
+                    }
+                }
+
+                transcriptEl.textContent = (final || interim);
+
+                if (final) {
+                    const filled = fillField(final.trim());
+                    statusEl.textContent = filled ? '✅ Field filled!' : '⚠️ No field matched — try again.';
+                }
+            };
+        })();
+    </script>
+}
