@@ -1,59 +1,143 @@
-﻿@model IEnumerable<Voice_recognise.Models.Details>
+@model IEnumerable<Voice_recognise.Models.Details>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Records";
 }
 
-<h1>Index</h1>
+<style>
+    .os-page-header {
+        background: linear-gradient(90deg, #0d1b2a 0%, #1b3a5c 100%);
+        border-radius: 10px;
+        padding: 1.3rem 1.8rem;
+        color: #fff;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 18px rgba(13,27,42,0.15);
+    }
+    .os-company-name {
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: .5px;
+        background: linear-gradient(90deg, #00c6ff, #ffffff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .os-badge {
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: #fff;
+        font-size: .75rem;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    .os-table-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(13,27,42,0.10);
+        overflow: hidden;
+    }
+    .os-table thead {
+        background: linear-gradient(90deg, #0d1b2a, #1b3a5c);
+        color: #cde4ff;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+    }
+    .os-table thead th { border: none; padding: .9rem 1rem; font-weight: 600; }
+    .os-table tbody tr { transition: background .15s; }
+    .os-table tbody tr:hover { background: #e8f4fd; }
+    .os-table td { vertical-align: middle; padding: .8rem 1rem; color: #1b3a5c; border-color: #e9f0fb; }
+    .btn-edit   { background:#0072ff; color:#fff; border:none; border-radius:5px; padding:3px 14px; font-size:.82rem; }
+    .btn-view   { background:#17a2b8; color:#fff; border:none; border-radius:5px; padding:3px 14px; font-size:.82rem; }
+    .btn-delete { background:#dc3545; color:#fff; border:none; border-radius:5px; padding:3px 14px; font-size:.82rem; }
+    .btn-edit:hover   { background:#0058cc; color:#fff; }
+    .btn-view:hover   { background:#138496; color:#fff; }
+    .btn-delete:hover { background:#b02a37; color:#fff; }
+    .add-btn {
+        background: linear-gradient(90deg, #0d1b2a, #1b3a5c);
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: .5rem 1.5rem;
+        font-weight: 600;
+        font-size: .95rem;
+        text-decoration: none;
+        transition: opacity .2s;
+    }
+    .add-btn:hover { opacity: .88; color: #fff; }
+    .empty-state { text-align: center; padding: 3rem; color: #8aaccc; }
+    .count-badge {
+        background: #e8f4fd;
+        color: #0072ff;
+        border-radius: 20px;
+        padding: 2px 12px;
+        font-size: .82rem;
+        font-weight: 700;
+    }
+</style>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MiddleName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Count)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MiddleName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Count)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<!-- Page Header -->
+<div class="os-page-header d-flex align-items-center justify-content-between">
+    <div>
+        <div class="os-company-name">Origin Softwares</div>
+        <div style="color:#90c4f9; font-size:.9rem;">Voice Recognition &mdash; Records Management</div>
+    </div>
+    <span class="os-badge">&#127908; VOICE SYSTEM</span>
+</div>
+
+<!-- Toolbar -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <h5 class="mb-0 fw-bold" style="color:#0d1b2a;">&#128196; All Records</h5>
+        <span class="count-badge">@Model.Count() entries</span>
+    </div>
+    <a asp-action="Create" class="add-btn">&#43; Add New Record</a>
+</div>
+
+<!-- Table Card -->
+<div class="card os-table-card">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div style="font-size:3rem;">&#128196;</div>
+                <p class="mt-2">No records yet. <a asp-action="Create">Create your first record.</a></p>
+            </div>
+        }
+        else
+        {
+            <table class="table os-table mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>@Html.DisplayNameFor(model => model.FirstName)</th>
+                        <th>@Html.DisplayNameFor(model => model.MiddleName)</th>
+                        <th>@Html.DisplayNameFor(model => model.LastName)</th>
+                        <th>@Html.DisplayNameFor(model => model.Count)</th>
+                        <th>@Html.DisplayNameFor(model => model.Description)</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int row = 1; }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><span class="count-badge">@row</span></td>
+                            <td><strong>@Html.DisplayFor(modelItem => item.FirstName)</strong></td>
+                            <td>@Html.DisplayFor(modelItem => item.MiddleName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                            <td><span class="badge bg-light text-dark border">@Html.DisplayFor(modelItem => item.Count)</span></td>
+                            <td><span class="text-muted">@Html.DisplayFor(modelItem => item.Description)</span></td>
+                            <td style="text-align:center; white-space:nowrap;">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn-edit btn me-1">&#9998; Edit</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn-view btn me-1">&#128065; View</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn-delete btn">&#128465; Delete</a>
+                            </td>
+                        </tr>
+                        row++;
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

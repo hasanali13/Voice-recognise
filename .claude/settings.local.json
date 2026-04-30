@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dotnet ef *)",
       "Bash(gh auth *)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Bash(gh repo *)"
     ]
   }
 }

@@ -1,71 +1,164 @@
 @model Voice_recognise.Models.Details
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Record";
 }
 
-<h1>Edit</h1>
+<style>
+    .os-card-header {
+        background: linear-gradient(90deg, #0d1b2a 0%, #1b3a5c 100%);
+        color: #fff;
+        border-radius: 10px 10px 0 0;
+        padding: 1.2rem 1.5rem;
+    }
+    .os-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(13,27,42,0.13);
+    }
+    .os-badge {
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: #fff;
+        font-size: .75rem;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        letter-spacing: .5px;
+    }
+    .voice-btn-active {
+        background: linear-gradient(90deg, #e53935, #c62828) !important;
+        border: none !important;
+        color: #fff !important;
+        box-shadow: 0 0 0 4px rgba(229,57,53,0.2);
+        animation: pulse 1.2s infinite;
+    }
+    @@keyframes pulse {
+        0%   { box-shadow: 0 0 0 0 rgba(229,57,53,0.4); }
+        70%  { box-shadow: 0 0 0 10px rgba(229,57,53,0); }
+        100% { box-shadow: 0 0 0 0 rgba(229,57,53,0); }
+    }
+    .voice-hint {
+        background: #e8f4fd;
+        border-left: 4px solid #0072ff;
+        border-radius: 6px;
+        padding: .75rem 1rem;
+        font-size: .9rem;
+        color: #1b3a5c;
+    }
+    .transcript-box {
+        background: #f0f7ff;
+        border: 1.5px dashed #90c4f9;
+        border-radius: 8px;
+        padding: .6rem 1rem;
+        font-style: italic;
+        color: #1b3a5c;
+        min-height: 38px;
+        font-size: .95rem;
+    }
+    .form-control:focus {
+        border-color: #0072ff;
+        box-shadow: 0 0 0 3px rgba(0,114,255,0.12);
+    }
+    .border-success-fill {
+        border-color: #28a745 !important;
+        box-shadow: 0 0 0 3px rgba(40,167,69,0.15) !important;
+        transition: all .3s;
+    }
+    .os-submit-btn {
+        background: linear-gradient(90deg, #0d6e38, #1a9c52);
+        color: #fff;
+        border: none;
+        padding: .55rem 2.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        letter-spacing: .5px;
+    }
+    .os-submit-btn:hover { opacity: .9; color: #fff; }
+</style>
 
-<h4>Details</h4>
-<hr />
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
 
-<div class="alert alert-info d-flex align-items-center gap-2 mb-3" style="max-width:500px;">
-    <span>&#127908;</span>
-    <span>
-        Say <strong>"first name John"</strong>, <strong>"middle name Ali"</strong>,
-        <strong>"last name Khan"</strong>, <strong>"count 3"</strong>, or
-        <strong>"description something"</strong> to fill fields by voice.
-    </span>
-</div>
+        <!-- Company Header -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h5 class="mb-0 fw-bold" style="color:#0d1b2a;">&#127968; Origin Softwares</h5>
+                <small class="text-muted">Voice Recognition — Edit Record</small>
+            </div>
+            <span class="os-badge">&#127908; VOICE ENABLED</span>
+        </div>
 
-<div class="mb-3 d-flex align-items-center gap-3" style="max-width:500px;">
-    <button type="button" id="voiceBtn" class="btn btn-outline-danger btn-lg" title="Start voice input">
-        &#127908; Start Voice
-    </button>
-    <span id="voiceStatus" class="text-muted fst-italic"></span>
-</div>
+        <div class="card os-card">
+            <div class="os-card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-0 fw-bold">&#9998; Edit Record</h5>
+                    <small style="color:#90c4f9;">Update fields by typing or using your voice</small>
+                </div>
+                <span style="font-size:2rem;">&#128393;</span>
+            </div>
 
-<div id="voiceTranscript" class="mb-3 p-2 bg-light border rounded text-secondary fst-italic" style="max-width:500px;min-height:36px;display:none;"></div>
+            <div class="card-body p-4">
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" id="FirstName" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
+                <div class="voice-hint mb-3">
+                    &#127908; Say <strong>"first name John"</strong> &bull; <strong>"middle name Ali"</strong> &bull;
+                    <strong>"last name Khan"</strong> &bull; <strong>"count 3"</strong> &bull; <strong>"description something"</strong>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <button type="button" id="voiceBtn" class="btn btn-outline-danger fw-bold px-4">
+                        &#127908; Start Voice
+                    </button>
+                    <span id="voiceStatus" class="text-muted fst-italic small"></span>
+                </div>
+
+                <div id="voiceTranscript" class="transcript-box mb-3" style="display:none;"></div>
+
+                <hr class="my-3" />
+
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="FirstName" class="form-label fw-semibold text-secondary small text-uppercase"></label>
+                        <input asp-for="FirstName" class="form-control" id="FirstName" placeholder="Enter first name" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MiddleName" class="form-label fw-semibold text-secondary small text-uppercase"></label>
+                        <input asp-for="MiddleName" class="form-control" id="MiddleName" placeholder="Enter middle name" />
+                        <span asp-validation-for="MiddleName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="LastName" class="form-label fw-semibold text-secondary small text-uppercase"></label>
+                        <input asp-for="LastName" class="form-control" id="LastName" placeholder="Enter last name" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Count" class="form-label fw-semibold text-secondary small text-uppercase"></label>
+                            <input asp-for="Count" class="form-control" id="Count" placeholder="0" />
+                            <span asp-validation-for="Count" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label asp-for="Description" class="form-label fw-semibold text-secondary small text-uppercase"></label>
+                            <input asp-for="Description" class="form-control" id="Description" placeholder="Enter description" />
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mt-3">
+                        <a asp-action="Index" class="text-decoration-none text-secondary">&#8592; Back to List</a>
+                        <button type="submit" class="os-submit-btn btn">&#10003; Save Changes</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="MiddleName" class="control-label"></label>
-                <input asp-for="MiddleName" class="form-control" id="MiddleName" />
-                <span asp-validation-for="MiddleName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" id="LastName" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Count" class="control-label"></label>
-                <input asp-for="Count" class="form-control" id="Count" />
-                <span asp-validation-for="Count" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" id="Description" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
@@ -80,7 +173,7 @@
             if (!SpeechRecognition) {
                 btn.disabled = true;
                 btn.textContent = 'Voice not supported';
-                statusEl.textContent = 'Your browser does not support voice recognition. Try Chrome.';
+                statusEl.textContent = 'Use Chrome or Edge for voice support.';
                 return;
             }
 
@@ -101,8 +194,8 @@
                             const el = document.getElementById(entry.field);
                             if (el && value) {
                                 el.value = value;
-                                el.classList.add('border-success');
-                                setTimeout(() => el.classList.remove('border-success'), 1500);
+                                el.classList.add('border-success-fill');
+                                setTimeout(() => el.classList.remove('border-success-fill'), 1500);
                                 return true;
                             }
                         }
@@ -115,22 +208,18 @@
             recognition.lang = 'en-US';
             recognition.continuous = true;
             recognition.interimResults = true;
-
             let listening = false;
 
             btn.addEventListener('click', () => {
-                if (listening) {
-                    recognition.stop();
-                } else {
-                    recognition.start();
-                }
+                listening ? recognition.stop() : recognition.start();
             });
 
             recognition.onstart = () => {
                 listening = true;
                 btn.textContent = '⏹ Stop Voice';
-                btn.classList.replace('btn-outline-danger', 'btn-danger');
-                statusEl.textContent = 'Listening...';
+                btn.classList.add('voice-btn-active');
+                btn.classList.remove('btn-outline-danger');
+                statusEl.textContent = '🎙 Listening...';
                 transcriptEl.style.display = 'block';
                 transcriptEl.textContent = '';
             };
@@ -138,7 +227,8 @@
             recognition.onend = () => {
                 listening = false;
                 btn.textContent = '🎤 Start Voice';
-                btn.classList.replace('btn-danger', 'btn-outline-danger');
+                btn.classList.remove('voice-btn-active');
+                btn.classList.add('btn-outline-danger');
                 statusEl.textContent = 'Stopped.';
             };
 
@@ -146,24 +236,17 @@
                 statusEl.textContent = 'Error: ' + e.error;
                 listening = false;
                 btn.textContent = '🎤 Start Voice';
-                btn.classList.replace('btn-danger', 'btn-outline-danger');
+                btn.classList.remove('voice-btn-active');
+                btn.classList.add('btn-outline-danger');
             };
 
             recognition.onresult = (event) => {
-                let interim = '';
-                let final = '';
-
+                let interim = '', final = '';
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const t = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        final += t;
-                    } else {
-                        interim += t;
-                    }
+                    event.results[i].isFinal ? final += t : interim += t;
                 }
-
-                transcriptEl.textContent = (final || interim);
-
+                transcriptEl.textContent = final || interim;
                 if (final) {
                     const filled = fillField(final.trim());
                     statusEl.textContent = filled ? '✅ Field filled!' : '⚠️ No field matched — try again.';
